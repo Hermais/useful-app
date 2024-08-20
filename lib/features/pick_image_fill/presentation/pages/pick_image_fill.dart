@@ -8,6 +8,8 @@ import 'package:useful_app/core/common/cubits/image_picker_cubit/image_picker_cu
 import 'package:useful_app/features/pick_image_fill/presentation/cubit/image_processor_cubit.dart';
 import 'package:useful_app/features/pick_image_fill/presentation/widgets/steps_card.dart';
 
+import '../widgets/adjusted_elevated_button.dart';
+
 class PickImageAndFillIn extends StatefulWidget {
   const PickImageAndFillIn({super.key});
 
@@ -25,8 +27,8 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
   final _imageCountFormKey = GlobalKey<FormState>();
 
   // the four textfields controllers
-  final TextEditingController _heightController = TextEditingController(text: "2480");
-  final TextEditingController _widthController = TextEditingController(text: "3508");
+  final TextEditingController _heightController = TextEditingController(text: "3508");
+  final TextEditingController _widthController = TextEditingController(text: "2480");
   final TextEditingController _rowsController = TextEditingController(text: "3");
   final TextEditingController _columnsController = TextEditingController(text: "3");
 
@@ -48,9 +50,10 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                           Text("No Image Selected.",
+                          Text("No Image Selected.",
                               style: Theme.of(context).textTheme.titleSmall),
-                          ElevatedButton(
+                          AdjustedElevatedButton(
+                            
                             onPressed: () {
                               context.read<ImagePickerCubit>().loadImage();
                             },
@@ -70,15 +73,19 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text("Image Selected, press next: ",
-                          style: Theme.of(context).textTheme.titleSmall,),
-                          ElevatedButton(
+                          Text(
+                            "Image Selected, press next: ",
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          AdjustedElevatedButton(
+                            
                             onPressed: () {
                               context.read<ImagePickerCubit>().loadImage();
                             },
                             child: const Text("Change Image"),
                           ),
-                          ElevatedButton(
+                          AdjustedElevatedButton(
+                            
                             onPressed: () {
                               setState(() {
                                 _showStep1 = false;
@@ -143,7 +150,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter width';
-                                }else if (int.tryParse(value) == null) {
+                                } else if (int.tryParse(value) == null) {
                                   return 'Please enter a valid number';
                                 }
                                 return null;
@@ -151,7 +158,8 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                               decoration: const InputDecoration(labelText: "Width"),
                             )),
                         // next button
-                        ElevatedButton(
+                        AdjustedElevatedButton(
+                          
                           onPressed: () {
                             // validate form first
                             if (_dimensionsFormKey.currentState!.validate()) {
@@ -160,8 +168,6 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                 _showStep3 = true;
                               });
                             }
-
-
                           },
                           child: const Text("Next"),
                         ),
@@ -170,7 +176,6 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                   ),
                 ),
               )),
-
           StepsCard(
             text: "Step 3: Specify Image Count",
             backButton: Visibility(
@@ -185,83 +190,81 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                 icon: const Icon(Icons.arrow_back),
               ),
             ),
-              child: Visibility(
-                visible: _showStep3,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Form(
-                    key: _imageCountFormKey,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 100),
-                            child: TextFormField(
-                              controller: _rowsController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a number of images';
-                                } else if (int.tryParse(value) == null) {
-                                  return 'Please enter a valid number';
-                                }
-                                return null;
-                              },
-                              decoration: const InputDecoration(labelText: "Y-axis count"),
-                            )),
-                        const Text("X"),
-                        ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 100),
-                            child: TextFormField(
-                              controller: _columnsController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a number of images';
-                                }else if (int.tryParse(value) == null) {
-                                  return 'Please enter a valid number';
-                                }
-                                return null;
-                              },
-                              decoration: const InputDecoration(labelText: "X-axis count"),
-                            )),
-                        // next button
-                        ElevatedButton(
-                          onPressed: () async{
-
-
-                            setState(() {
-                              _showStep3 = false;
-                              _showStep4 = true;
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Processing Image")));
-                            // validate form first
-                            if (_imageCountFormKey.currentState!.validate()) {
-
-                                // pop a snack bar
-                                if (context.read<ImagePickerCubit>().state is ImagePickerLoaded){
-                                  context.read<ImageProcessorCubit>().procesXFileImageToUInt8(
-                                      xFileimage: (context.read<ImagePickerCubit>().state as ImagePickerLoaded).xFileImage,
+            child: Visibility(
+              visible: _showStep3,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                  key: _imageCountFormKey,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 100),
+                          child: TextFormField(
+                            controller: _rowsController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a number of images';
+                              } else if (int.tryParse(value) == null) {
+                                return 'Please enter a valid number';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(labelText: "Y-axis count"),
+                          )),
+                      const Text("X"),
+                      ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 100),
+                          child: TextFormField(
+                            controller: _columnsController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a number of images';
+                              } else if (int.tryParse(value) == null) {
+                                return 'Please enter a valid number';
+                              }
+                              return null;
+                            },
+                            decoration: const InputDecoration(labelText: "X-axis count"),
+                          )),
+                      // next button
+                      AdjustedElevatedButton(
+                        
+                        onPressed: () async {
+                          setState(() {
+                            _showStep3 = false;
+                            _showStep4 = true;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Processing Image")));
+                          // validate form first
+                          if (_imageCountFormKey.currentState!.validate()) {
+                            // pop a snack bar
+                            if (context.read<ImagePickerCubit>().state
+                                is ImagePickerLoaded) {
+                              context
+                                  .read<ImageProcessorCubit>()
+                                  .processXFileImageToUInt8(
+                                      xFileImage: (context.read<ImagePickerCubit>().state
+                                              as ImagePickerLoaded)
+                                          .xFileImage,
                                       canvasWidth: int.parse(_widthController.text),
                                       canvasHeight: int.parse(_heightController.text),
                                       rowsImage: int.parse(_rowsController.text),
                                       columnsImage: int.parse(_columnsController.text),
                                       margin: 3);
-
-
-                                }
-
-
                             }
-
-
-                          },
-                          child: const Text("Next"),
-                        ),
-                      ],
-                    ),
+                          }
+                        },
+                        child: const Text("Next"),
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
           ),
           StepsCard(
             text: "Step 4: Image Processing",
@@ -286,42 +289,52 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                     if (state is ImageProcessorInitial) {
                       return const Text("Select an image first.");
                     } else if (state is ImageProcessorPainting) {
-                      return  Column(
+                      return Column(
                         children: [
                           Text("Processing Image",
-                          style: Theme.of(context).textTheme.titleSmall),
-                          const SizedBox( height: 10,),
+                              style: Theme.of(context).textTheme.titleSmall),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           const CircularProgressIndicator(),
                         ],
                       );
                     } else if (state is ImageProcessorPainted) {
                       return Column(
                         children: [
-                           Text("Image Processed!",
-                          style: Theme.of(context).textTheme.titleSmall,),
-                          const SizedBox(height: 10,),
+                          Text(
+                            "Image Processed!",
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width *0.8 ),
+                            constraints: BoxConstraints(
+                                maxWidth: MediaQuery.sizeOf(context).width * 0.8),
                             child: Image(
                               image: MemoryImage(state.image),
-
-
                             ),
                           ),
                         ],
                       );
-
                     } else {
-                      return  Text("Error Processing Image",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.red
-                      ),);
+                      return Text(
+                        "Error Processing Image",
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Colors.red),
+                      );
                     }
                   },
+                ),
               ),
             ),
           ),
-          )],
+          const SizedBox(height: 60,)
+
+        ],
       ),
     );
   }

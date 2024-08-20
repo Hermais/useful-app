@@ -39,6 +39,7 @@ dependencies:
   image_picker:
   bloc:
   meta:
+  path_provider:
 
 
 dev_dependencies:

@@ -17,18 +17,18 @@ class ImageProcessorCubit extends Cubit<ImageProcessorState> {
     return frame.image;
   }
 
-  Future<Uint8List> _convertUiImageToUint8List(UI.Image image) async {
+  Future<Uint8List> _convertUiImageToUInt8List(UI.Image image) async {
     final ByteData? byteData = await image.toByteData(format: UI.ImageByteFormat.png);
     if (byteData != null) {
       return byteData.buffer.asUint8List();
     }
-    throw Exception('Failed to convert UI.Image to Uint8List');
+    throw Exception('Failed to convert UI.Image to UInt8List');
   }
 
 
   // Process the image and paint it on the canvas
-  Future<void> procesXFileImageToUInt8({
-    required XFile xFileimage,
+  Future<void> processXFileImageToUInt8({
+    required XFile xFileImage,
     required int canvasWidth,
     required int canvasHeight,
     required int rowsImage,
@@ -37,7 +37,7 @@ class ImageProcessorCubit extends Cubit<ImageProcessorState> {
   }) async {
     emit(ImageProcessorPainting());
 
-    final image = await _convertToImage(xFileimage);
+    final image = await _convertToImage(xFileImage);
 
 
     // Calculate image width and height
@@ -57,7 +57,7 @@ class ImageProcessorCubit extends Cubit<ImageProcessorState> {
     );
 
     final UI.Image imageAsUI = await painter.paint();
-    final imageData = await _convertUiImageToUint8List(imageAsUI);
+    final imageData = await _convertUiImageToUInt8List(imageAsUI);
 
     emit(ImageProcessorPainted(imageData));
 
