@@ -4,11 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:useful_app/core/common/cubits/file_saver_cubit/file_saver_cubit.dart';
 import 'package:useful_app/core/common/cubits/image_picker_cubit/image_picker_cubit.dart';
+import 'package:useful_app/core/utils/adjusted_date_time.dart';
+import 'package:useful_app/core/utils/show_snackbar.dart';
 import 'package:useful_app/features/pick_image_fill/presentation/cubit/image_processor_cubit.dart';
-import 'package:useful_app/features/pick_image_fill/presentation/widgets/steps_card.dart';
 
-import '../widgets/adjusted_elevated_button.dart';
+import '../widgets/util_widgets/adjusted_elevated_button.dart';
+import '../widgets/util_widgets/steps_card.dart';
 
 class PickImageAndFillIn extends StatefulWidget {
   const PickImageAndFillIn({super.key});
@@ -43,7 +46,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
               visible: _showStep1,
               child: BlocBuilder<ImagePickerCubit, ImagePickerState>(
                 builder: (context, state) {
-                  if (state is ImagePickerInitial) {
+                  if (state is ImagePickerInitial || state is ImagePickerError) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -53,7 +56,6 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                           Text("No Image Selected.",
                               style: Theme.of(context).textTheme.titleSmall),
                           AdjustedElevatedButton(
-                            
                             onPressed: () {
                               context.read<ImagePickerCubit>().loadImage();
                             },
@@ -78,14 +80,12 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           AdjustedElevatedButton(
-                            
                             onPressed: () {
                               context.read<ImagePickerCubit>().loadImage();
                             },
                             child: const Text("Change Image"),
                           ),
                           AdjustedElevatedButton(
-                            
                             onPressed: () {
                               setState(() {
                                 _showStep1 = false;
@@ -159,7 +159,6 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                             )),
                         // next button
                         AdjustedElevatedButton(
-                          
                           onPressed: () {
                             // validate form first
                             if (_dimensionsFormKey.currentState!.validate()) {
@@ -231,7 +230,6 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                           )),
                       // next button
                       AdjustedElevatedButton(
-                        
                         onPressed: () async {
                           setState(() {
                             _showStep3 = false;
@@ -316,15 +314,80 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                               image: MemoryImage(state.image),
                             ),
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              AdjustedElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _showStep1 = true;
+                                    _showStep4 = false;
+                                  });
+                                },
+                                child: const Text("Start Over"),
+                              ),
+                              BlocConsumer<FileSaverCubit, FileSaverState>(
+                                listener: (context, state) {
+                                  if(state is FileSaverSaved){
+                                    showSnackBar(context: context,
+                                        message: "Image Successfully Saved To:${state.filePath}",
+                                        color: Colors.green);
+                                  }
+                                },
+                                builder: (context, state) {
+                                  if (state is FileSaverInitial || state is FileSaverError || state is FileSaverSaved) {
+                                    return AdjustedElevatedButton(
+                                      onPressed: () {
+                                        context.read<FileSaverCubit>().saveImageToGallery(
+                                            (context.read<ImageProcessorCubit>().state
+                                                    as ImageProcessorPainted)
+                                                .image,
+                                            '${getDateTimeNow()}.jpg');
+                                      },
+                                      child: const Text("Save Image"),
+                                    );
+                                  }
+                                  if (state is FileSaverSaving) {
+                                    return const CircularProgressIndicator();
+                                  }else{
+                                    return const Text("Unknown Error Saving Image");
+                                  }
+                                 },
+                              ),
+                            ],
+                          )
                         ],
                       );
                     } else {
-                      return Text(
-                        "Error Processing Image",
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: Colors.red),
+                      return Column(
+                        children: [
+                          Text(
+                            "Error Processing Image",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: Colors.red),
+                          ),
+                          AdjustedElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                context
+                                    .read<ImageProcessorCubit>()
+                                    .processXFileImageToUInt8(
+                                        xFileImage: (context
+                                                .read<ImagePickerCubit>()
+                                                .state as ImagePickerLoaded)
+                                            .xFileImage,
+                                        canvasWidth: int.parse(_widthController.text),
+                                        canvasHeight: int.parse(_heightController.text),
+                                        rowsImage: int.parse(_rowsController.text),
+                                        columnsImage: int.parse(_columnsController.text),
+                                        margin: 3);
+                              });
+                            },
+                            child: const Text("Try Again"),
+                          ),
+                        ],
                       );
                     }
                   },
@@ -332,8 +395,9 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
               ),
             ),
           ),
-          const SizedBox(height: 60,)
-
+          const SizedBox(
+            height: 60,
+          )
         ],
       ),
     );

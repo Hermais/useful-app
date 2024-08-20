@@ -5,6 +5,8 @@ import 'package:useful_app/features/landing_page/presentation/widgets/bottom_nav
 import 'package:useful_app/features/pick_image_fill/presentation/cubit/image_processor_cubit.dart';
 import 'package:useful_app/features/pick_image_fill/presentation/pages/pick_image_fill.dart';
 
+import '../../../../core/common/cubits/file_saver_cubit/file_saver_cubit.dart';
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -14,7 +16,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
-
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,6 +31,9 @@ class _MainPageState extends State<MainPage> {
         ),
         BlocProvider(
           create: (_) => ImageProcessorCubit(),
+        ),
+        BlocProvider(
+          create: (_) => FileSaverCubit(),
         ),
       ],
       child: const PickImageAndFillIn(),
@@ -66,9 +70,7 @@ class _MainPageState extends State<MainPage> {
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Theme
-            .of(context)
-            .primaryColor,
+        selectedItemColor: Theme.of(context).primaryColor,
       ),
     );
   }

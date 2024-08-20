@@ -11,7 +11,7 @@ part 'file_saver_state.dart';
 class FileSaverCubit extends Cubit<FileSaverState> {
   FileSaverCubit() : super(FileSaverInitial());
 
-  Future<void> saveImage(Uint8List imageData, String fileName) async {
+  Future<void> saveImageToGallery(Uint8List imageData, String fileName) async {
     try {
       emit(FileSaverSaving());
       final directory = await getApplicationDocumentsDirectory();

@@ -42,6 +42,7 @@ class StepsCard extends StatelessWidget {
                     .textTheme
                     .titleMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(),
             ],

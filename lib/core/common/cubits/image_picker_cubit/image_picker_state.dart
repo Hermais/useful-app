@@ -10,4 +10,11 @@ final class ImagePickerLoaded extends ImagePickerState {
 
   ImagePickerLoaded(this.xFileImage);
 }
+final class ImagePickerError extends ImagePickerState {
+  final String message;
+
+  ImagePickerError(this.message){
+    printLn(message);
+  }
+}
 
