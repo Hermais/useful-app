@@ -1,11 +1,10 @@
-import 'dart:ui' as UI;
+import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:useful_app/core/common/cubits/file_saver_cubit/file_saver_cubit.dart';
 import 'package:useful_app/core/common/cubits/image_picker_cubit/image_picker_cubit.dart';
+import 'package:useful_app/core/common/cubits/image_to_pdf_cubit/image_to_pdf_cubit.dart';
 import 'package:useful_app/core/utils/adjusted_date_time.dart';
 import 'package:useful_app/core/utils/show_snackbar.dart';
 import 'package:useful_app/features/pick_image_fill/presentation/cubit/image_processor_cubit.dart';
@@ -25,6 +24,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
   var _showStep2 = false;
   var _showStep3 = false;
   var _showStep4 = false;
+
 
   final _dimensionsFormKey = GlobalKey<FormState>();
   final _imageCountFormKey = GlobalKey<FormState>();
@@ -75,9 +75,17 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+
                           Text(
                             "Image Selected, press next: ",
                             style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width * 0.8),
+                            child: Image.file(
+                              File(state.xFileImage.path),
+                            ),
                           ),
                           AdjustedElevatedButton(
                             onPressed: () {
@@ -94,6 +102,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                             },
                             child: const Text("Next"),
                           ),
+
                         ],
                       ),
                     );
@@ -354,6 +363,36 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                   }
                                  },
                               ),
+                              BlocConsumer<ImageToPdfCubit, ImageToPdfState>(
+                                  builder: (context, state){
+                                    if(state is ImageToPdfInitial || state is ImageToPdfError
+                                    || state is ImageToPdfConverted){
+                                      return AdjustedElevatedButton(
+                                        onPressed: () {
+                                          context.read<ImageToPdfCubit>().saveAsPDF(
+                                              (context.read<ImageProcessorCubit>().state as ImageProcessorPainted).image,
+                                              '${getDateTimeNow()}.pdf');
+                                        },
+                                        child: const Text("Save As PDF"),
+                                      );
+                                    }else if(state is ImageToPdfConverting){
+                                      return const CircularProgressIndicator();
+                                    }else{
+                                      return const Text("Error Saving PDF");
+                                    }
+
+                                  }, listener: (context, state){
+                                    if(state is ImageToPdfError){
+                                      showSnackBar(context: context,
+                                          message: "Error Saving PDF: ${state.message}",
+                                          color: Colors.red);
+                                    }else if(state is ImageToPdfConverted){
+                                      showSnackBar(context: context,
+                                          message: "PDF Successfully Saved To:${state.filePath}",
+                                          color: Colors.green);
+                                    }
+
+                              })
                             ],
                           )
                         ],

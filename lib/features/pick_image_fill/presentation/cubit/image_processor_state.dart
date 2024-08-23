@@ -14,7 +14,7 @@ final class ImageProcessorError extends ImageProcessorState {
   final String message;
 
   ImageProcessorError(this.message){
-    print(message);
+    printLn(message);
   }
 }
 

@@ -40,6 +40,8 @@ dependencies:
   bloc:
   meta:
   path_provider:
+  pdf:
+  path:
 
 
 dev_dependencies:

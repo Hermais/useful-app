@@ -6,6 +6,7 @@ import 'package:useful_app/features/pick_image_fill/presentation/cubit/image_pro
 import 'package:useful_app/features/pick_image_fill/presentation/pages/pick_image_fill.dart';
 
 import '../../../../core/common/cubits/file_saver_cubit/file_saver_cubit.dart';
+import '../../../../core/common/cubits/image_to_pdf_cubit/image_to_pdf_cubit.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -35,6 +36,7 @@ class _MainPageState extends State<MainPage> {
         BlocProvider(
           create: (_) => FileSaverCubit(),
         ),
+        BlocProvider(create: (_) => ImageToPdfCubit()),
       ],
       child: const PickImageAndFillIn(),
     ),
