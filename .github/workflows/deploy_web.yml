@@ -20,14 +20,8 @@ jobs:
           flutter-version: 3.24
           channel: stable
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build web
-        run: flutter build web --release
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Blue Fire Team Actions
+        uses: bluefireteam/flutter-gh-pages@v8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
+          baseHref: /useful-app/
+          webRenderer: canvaskit
