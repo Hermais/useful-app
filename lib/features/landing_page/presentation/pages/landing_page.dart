@@ -52,7 +52,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Page'),
+        title: const Text('Useful App'),
       ),
       body: _pagesList[_selectedIndex],
       bottomNavigationBar: MainBottomNavigationBar(
