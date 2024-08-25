@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:useful_app/core/common/cubits/file_saver_cubit/file_saver_cubit.dart';
@@ -141,14 +142,15 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                       "Image Selected, press next: ",
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    FormattedImage(
-                      image: Image.file(
-                        File(
-                          state.xFileImage.path,
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    if(kIsWeb)
+                      FormattedImage(
+                        image: Image.network((state).xFileImage.path),
+                      )
+                    else
+                      FormattedImage(
+                        image: Image.file(File((state).xFileImage.path)),
+                      )
+                    ,
                     AdjustedElevatedButton(
                       onPressed: () {
                         context.read<ImagePickerCubit>().loadImage();
