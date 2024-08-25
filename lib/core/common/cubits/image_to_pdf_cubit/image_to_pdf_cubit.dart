@@ -16,9 +16,9 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
       Uint8List bytes;
 
       if (isPlatformWeb()) {
-        bytes = await _convertImageToPdfDirectly(data);
+        bytes = await _convertImageToPdfWithIsolateSupport({},imageData: data);
       } else {
-        bytes = await compute(_convertImageToPdfInIsolate, {'data': data});
+        bytes = await compute(_convertImageToPdfWithIsolateSupport, {'data': data});
       }
 
       emit(ImageToPdfConverted(bytes));
@@ -33,30 +33,36 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
     emit(ImageToPdfInitial());
   }
 
-  Future<Uint8List> _convertImageToPdfDirectly(Uint8List data) async {
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.FullPage(
-            ignoreMargins: true,
-            child: pw.Image(
-              pw.MemoryImage(data),
-              fit: pw.BoxFit.cover,
-            ),
-          );
-        },
-      ),
-    );
-
-    return pdf.save();
-  }
+  // Future<Uint8List> _convertImageToPdfDirectly(Uint8List data) async {
+  //   final pdf = pw.Document();
+  //
+  //   pdf.addPage(
+  //     pw.Page(
+  //       build: (pw.Context context) {
+  //         return pw.FullPage(
+  //           ignoreMargins: true,
+  //           child: pw.Image(
+  //             pw.MemoryImage(data),
+  //             fit: pw.BoxFit.cover,
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  //
+  //   return pdf.save();
+  // }
 }
 
 // Function that will be run in an isolate
-Future<Uint8List> _convertImageToPdfInIsolate(Map<String, dynamic> params) async {
-  final data = params['data'] as Uint8List;
+Future<Uint8List> _convertImageToPdfWithIsolateSupport(Map<String, dynamic> params, {Uint8List? imageData}) async {
+  Uint8List data;
+  if(imageData != null) {
+    // no isolate mode
+    data = imageData;
+  }else{
+    data = params['data'] as Uint8List;
+  }
   final pdf = pw.Document();
 
   pdf.addPage(

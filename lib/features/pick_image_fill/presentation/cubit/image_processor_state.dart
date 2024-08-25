@@ -1,5 +1,7 @@
 part of 'image_processor_cubit.dart';
 
+
+
 @immutable
 sealed class ImageProcessorState {}
 

@@ -11,6 +11,7 @@ part 'image_processor_state.dart';
 class ImageProcessorCubit extends Cubit<ImageProcessorState> {
   ImageProcessorCubit() : super(ImageProcessorInitial());
 
+  // Convert XFile to UI.Image
   Future<UI.Image> _convertToImage(XFile xFile) async {
     final data = await xFile.readAsBytes();
     final codec = await UI.instantiateImageCodec(data);
