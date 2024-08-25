@@ -31,7 +31,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
   final _dimensionsFormKey = GlobalKey<FormState>();
   final _imageCountFormKey = GlobalKey<FormState>();
 
-  // the four textfields controllers
+  // the four text fields controllers
   final TextEditingController _heightController = TextEditingController(text: "3508");
   final TextEditingController _widthController = TextEditingController(text: "2480");
   final TextEditingController _rowsController = TextEditingController(text: "3");
@@ -417,7 +417,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                   context.read<ImageToPdfCubit>().reset();
                                 });
                               },
-                              child: const Text("Start Over"),
+                              child: const Text("Start Again"),
                             ),
                           ),
                           Expanded(
