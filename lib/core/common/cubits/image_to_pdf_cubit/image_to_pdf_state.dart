@@ -6,9 +6,9 @@ sealed class ImageToPdfState {}
 final class ImageToPdfInitial extends ImageToPdfState {}
 final class ImageToPdfConverting extends ImageToPdfState {}
 final class ImageToPdfConverted extends ImageToPdfState {
-  final String filePath;
+  final Uint8List pdf;
 
-  ImageToPdfConverted(this.filePath);
+  ImageToPdfConverted(this.pdf);
 
 }
 final class ImageToPdfError extends ImageToPdfState {

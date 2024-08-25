@@ -131,26 +131,23 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                 child: CircularProgressIndicator(),
               );
             } else if (state is ImagePickerLoaded) {
-
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
                   children: [
                     Text(
                       "Image Selected, press next: ",
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    if(kIsWeb)
+                    if (kIsWeb)
                       FormattedImage(
                         image: Image.network((state).xFileImage.path),
                       )
                     else
                       FormattedImage(
                         image: Image.file(File((state).xFileImage.path)),
-                      )
-                    ,
+                      ),
                     AdjustedElevatedButton(
                       onPressed: () {
                         context.read<ImagePickerCubit>().loadImage();
@@ -390,7 +387,23 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                     FormattedImage(
                       image: Image.memory(state.image),
                     ),
-                    Row(
+                    BlocListener<FileSaverCubit, FileSaverState>(
+                      listener: (context, state) {
+                        if (state is FileSaverSaved) {
+                          showSnackBar(
+                              context: context,
+                              message:
+                              "File Successfully Saved To:${state.filePath}",
+                              color: Colors.green);
+                        }
+                        if (state is FileSaverError) {
+                          showSnackBar(
+                              context: context,
+                              message: "Error Saving Image: ${state.message}",
+                              color: Colors.red);
+                        }
+                      },
+  child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Expanded(
@@ -405,27 +418,28 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                           ),
                         ),
                         Expanded(
-                          child: BlocConsumer<FileSaverCubit, FileSaverState>(
-                            listener: (context, state) {
-                              if (state is FileSaverSaved) {
-                                showSnackBar(
-                                    context: context,
-                                    message:
-                                        "Image Successfully Saved To:${state.filePath}",
-                                    color: Colors.green);
-                              }
-                            },
+                          child: BlocBuilder<FileSaverCubit, FileSaverState>(
+                            
                             builder: (context, state) {
                               if (state is FileSaverInitial ||
                                   state is FileSaverError ||
                                   state is FileSaverSaved) {
                                 return AdjustedElevatedButton(
                                   onPressed: () {
-                                    context.read<FileSaverCubit>().saveImageToGallery(
-                                        (context.read<ImageProcessorCubit>().state
-                                                as ImageProcessorPainted)
-                                            .image,
-                                        '${getDateTimeNow()}.jpg');
+                                    if (kIsWeb) {
+                                      context.read<FileSaverCubit>().downloadFile(
+                                          (context.read<ImageProcessorCubit>().state
+                                                  as ImageProcessorPainted)
+                                              .image,
+                                          '${getDateTimeNow()}.png',
+                                          'image/png');
+                                    } else {
+                                      context.read<FileSaverCubit>().saveImageToGallery(
+                                          (context.read<ImageProcessorCubit>().state
+                                                  as ImageProcessorPainted)
+                                              .image,
+                                          '${getDateTimeNow()}.jpg');
+                                    }
                                   },
                                   child: const Text("Save Image"),
                                 );
@@ -441,40 +455,73 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                         Expanded(
                           child: BlocConsumer<ImageToPdfCubit, ImageToPdfState>(
                               builder: (context, state) {
-                            if (state is ImageToPdfInitial ||
-                                state is ImageToPdfError ||
-                                state is ImageToPdfConverted) {
+                            if (state is ImageToPdfInitial || state is ImageToPdfError) {
                               return AdjustedElevatedButton(
                                 onPressed: () {
-                                  context.read<ImageToPdfCubit>().saveAsPDF(
+                                  context.read<ImageToPdfCubit>().convertImageToPDF(
                                       (context.read<ImageProcessorCubit>().state
                                               as ImageProcessorPainted)
                                           .image,
                                       '${getDateTimeNow()}.pdf');
                                 },
-                                child: const Text("Save As PDF"),
+                                child: const Text("Convert To PDF"),
                               );
                             } else if (state is ImageToPdfConverting) {
                               return const Center(child: CircularProgressIndicator());
+                            } else if (state is ImageToPdfConverted) {
+                              return BlocBuilder<FileSaverCubit, FileSaverState>(
+                                
+                                builder: (context, state) {
+                                  if (state is FileSaverInitial ||
+                                      state is FileSaverError ||
+                                      state is FileSaverSaved) {
+                                    return AdjustedElevatedButton(
+                                      onPressed: () {
+                                        if (kIsWeb) {
+                                          context.read<FileSaverCubit>().downloadFile(
+                                              (context.read<ImageToPdfCubit>().state
+                                                      as ImageToPdfConverted)
+                                                  .pdf,
+                                              '${getDateTimeNow()}.pdf',
+                                              'application/pdf');
+                                        } else {
+                                          context.read<FileSaverCubit>().saveImageToGallery(
+                                              (context.read<ImageToPdfCubit>().state
+                                                      as ImageToPdfConverted)
+                                                  .pdf,
+                                              '${getDateTimeNow()}.pdf');
+                                        }
+                                      },
+                                      child: const Text("Save PDF"),
+                                    );
+                                  }
+                                  if (state is FileSaverSaving) {
+                                    return const Center(child: CircularProgressIndicator());
+                                  } else {
+                                    return const Text("Unknown Error Saving PDF");
+                                  }
+                                },
+                              );
                             } else {
-                              return const Text("Error Saving PDF");
+                              return const Text("Error Converting PDF");
                             }
                           }, listener: (context, state) {
                             if (state is ImageToPdfError) {
                               showSnackBar(
                                   context: context,
-                                  message: "Error Saving PDF: ${state.message}",
+                                  message: "Error Converting PDF: ${state.message}",
                                   color: Colors.red);
                             } else if (state is ImageToPdfConverted) {
                               showSnackBar(
                                   context: context,
-                                  message: "PDF Successfully Saved To:${state.filePath}",
+                                  message: "PDF Successfully Converted!",
                                   color: Colors.green);
                             }
                           }),
                         )
                       ],
-                    )
+                    ),
+)
                   ],
                 );
               } else {

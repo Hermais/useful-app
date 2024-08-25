@@ -1,11 +1,8 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../utils/print_if_debugging.dart';
@@ -18,7 +15,7 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
 
 
 
-  Future<void> saveAsPDF(Uint8List data, String fileName) async {
+  Future<Uint8List> convertImageToPDF(Uint8List data, String fileName) async {
     try{
       emit(ImageToPdfConverting());
       final pdf = pw.Document();
@@ -37,17 +34,15 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
         ),
       );
 
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = path.join(directory.path, fileName);
-
-      final file = File(filePath);
-      await file.writeAsBytes(await pdf.save());
-
-      emit(ImageToPdfConverted(filePath));
-
+      final bytes = await pdf.save();
+      emit(ImageToPdfConverted(bytes));
+      return bytes;
     }catch(e){
+
       emit(ImageToPdfError(e.toString()));
+      return Uint8List(0);
     }
   }
+
 
 }

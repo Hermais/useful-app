@@ -42,6 +42,7 @@ dependencies:
   path_provider:
   pdf:
   path:
+  universal_html:
 
 
 dev_dependencies:

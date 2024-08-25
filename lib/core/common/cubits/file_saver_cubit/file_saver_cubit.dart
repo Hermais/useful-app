@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:universal_html/html.dart' as html;
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,5 +28,17 @@ class FileSaverCubit extends Cubit<FileSaverState> {
       emit(FileSaverError(e.toString()));
     }
   }
+
+
+
+  void downloadFile(Uint8List bytes, String fileName, String mimeType) {
+    final blob = html.Blob([bytes], mimeType);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    html.AnchorElement(href: url)
+      ..setAttribute("download", fileName)
+      ..click();
+    html.Url.revokeObjectUrl(url);
+  }
+
 
 }
