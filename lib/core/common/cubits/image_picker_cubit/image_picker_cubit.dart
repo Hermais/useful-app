@@ -21,4 +21,8 @@ class ImagePickerCubit extends Cubit<ImagePickerState> {
     return pickedFile;
 
   }
+
+  void reset(){
+    emit(ImagePickerInitial());
+  }
 }

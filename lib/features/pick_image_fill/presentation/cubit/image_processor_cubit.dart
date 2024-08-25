@@ -65,6 +65,10 @@ class ImageProcessorCubit extends Cubit<ImageProcessorState> {
 
 
   }
+
+  void reset(){
+    emit(ImageProcessorInitial());
+  }
 }
 
 class ImagePainter {

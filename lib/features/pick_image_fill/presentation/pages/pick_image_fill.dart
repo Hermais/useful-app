@@ -392,8 +392,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                         if (state is FileSaverSaved) {
                           showSnackBar(
                               context: context,
-                              message:
-                              "File Successfully Saved To:${state.filePath}",
+                              message: "File Successfully Saved To:${state.filePath}",
                               color: Colors.green);
                         }
                         if (state is FileSaverError) {
@@ -403,125 +402,131 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                               color: Colors.red);
                         }
                       },
-  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: AdjustedElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _showStep1 = true;
-                                _showStep4 = false;
-                              });
-                            },
-                            child: const Text("Start Over"),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: AdjustedElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _showStep1 = true;
+                                  _showStep4 = false;
+                                  context.read<ImagePickerCubit>().reset();
+                                  context.read<ImageProcessorCubit>().reset();
+                                  context.read<FileSaverCubit>().reset();
+                                  context.read<ImageToPdfCubit>().reset();
+                                });
+                              },
+                              child: const Text("Start Over"),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: BlocBuilder<FileSaverCubit, FileSaverState>(
-                            
-                            builder: (context, state) {
-                              if (state is FileSaverInitial ||
-                                  state is FileSaverError ||
-                                  state is FileSaverSaved) {
+                          Expanded(
+                            child: BlocBuilder<FileSaverCubit, FileSaverState>(
+                              builder: (context, state) {
+                                if (state is FileSaverInitial ||
+                                    state is FileSaverError ||
+                                    state is FileSaverSaved) {
+                                  return AdjustedElevatedButton(
+                                    onPressed: () {
+                                      if (kIsWeb) {
+                                        context.read<FileSaverCubit>().downloadFile(
+                                            (context.read<ImageProcessorCubit>().state
+                                                    as ImageProcessorPainted)
+                                                .image,
+                                            '${getDateTimeNow()}.png',
+                                            'image/png');
+                                      } else {
+                                        context.read<FileSaverCubit>().saveImageToGallery(
+                                            (context.read<ImageProcessorCubit>().state
+                                                    as ImageProcessorPainted)
+                                                .image,
+                                            '${getDateTimeNow()}.jpg');
+                                      }
+                                    },
+                                    child: const Text("Save Image"),
+                                  );
+                                }
+                                if (state is FileSaverSaving) {
+                                  return const Center(child: CircularProgressIndicator());
+                                } else {
+                                  return const Text("Unknown Error Saving Image");
+                                }
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: BlocConsumer<ImageToPdfCubit, ImageToPdfState>(
+                                builder: (context, state) {
+                              if (state is ImageToPdfInitial ||
+                                  state is ImageToPdfError) {
                                 return AdjustedElevatedButton(
                                   onPressed: () {
-                                    if (kIsWeb) {
-                                      context.read<FileSaverCubit>().downloadFile(
-                                          (context.read<ImageProcessorCubit>().state
-                                                  as ImageProcessorPainted)
-                                              .image,
-                                          '${getDateTimeNow()}.png',
-                                          'image/png');
+                                    context.read<ImageToPdfCubit>().convertImageToPDF(
+                                        (context.read<ImageProcessorCubit>().state
+                                                as ImageProcessorPainted)
+                                            .image,
+                                        '${getDateTimeNow()}.pdf');
+                                  },
+                                  child: const Text("Convert To PDF"),
+                                );
+                              } else if (state is ImageToPdfConverting) {
+                                return const Center(child: CircularProgressIndicator());
+                              } else if (state is ImageToPdfConverted) {
+                                return BlocBuilder<FileSaverCubit, FileSaverState>(
+                                  builder: (context, state) {
+                                    if (state is FileSaverInitial ||
+                                        state is FileSaverError ||
+                                        state is FileSaverSaved) {
+                                      return AdjustedElevatedButton(
+                                        onPressed: () {
+                                          if (kIsWeb) {
+                                            context.read<FileSaverCubit>().downloadFile(
+                                                (context.read<ImageToPdfCubit>().state
+                                                        as ImageToPdfConverted)
+                                                    .pdf,
+                                                '${getDateTimeNow()}.pdf',
+                                                'application/pdf');
+                                          } else {
+                                            context
+                                                .read<FileSaverCubit>()
+                                                .saveImageToGallery(
+                                                    (context.read<ImageToPdfCubit>().state
+                                                            as ImageToPdfConverted)
+                                                        .pdf,
+                                                    '${getDateTimeNow()}.pdf');
+                                          }
+                                        },
+                                        child: const Text("Save PDF"),
+                                      );
+                                    }
+                                    if (state is FileSaverSaving) {
+                                      return const Center(
+                                          child: CircularProgressIndicator());
                                     } else {
-                                      context.read<FileSaverCubit>().saveImageToGallery(
-                                          (context.read<ImageProcessorCubit>().state
-                                                  as ImageProcessorPainted)
-                                              .image,
-                                          '${getDateTimeNow()}.jpg');
+                                      return const Text("Unknown Error Saving PDF");
                                     }
                                   },
-                                  child: const Text("Save Image"),
                                 );
-                              }
-                              if (state is FileSaverSaving) {
-                                return const Center(child: CircularProgressIndicator());
                               } else {
-                                return const Text("Unknown Error Saving Image");
+                                return const Text("Error Converting PDF");
                               }
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: BlocConsumer<ImageToPdfCubit, ImageToPdfState>(
-                              builder: (context, state) {
-                            if (state is ImageToPdfInitial || state is ImageToPdfError) {
-                              return AdjustedElevatedButton(
-                                onPressed: () {
-                                  context.read<ImageToPdfCubit>().convertImageToPDF(
-                                      (context.read<ImageProcessorCubit>().state
-                                              as ImageProcessorPainted)
-                                          .image,
-                                      '${getDateTimeNow()}.pdf');
-                                },
-                                child: const Text("Convert To PDF"),
-                              );
-                            } else if (state is ImageToPdfConverting) {
-                              return const Center(child: CircularProgressIndicator());
-                            } else if (state is ImageToPdfConverted) {
-                              return BlocBuilder<FileSaverCubit, FileSaverState>(
-                                
-                                builder: (context, state) {
-                                  if (state is FileSaverInitial ||
-                                      state is FileSaverError ||
-                                      state is FileSaverSaved) {
-                                    return AdjustedElevatedButton(
-                                      onPressed: () {
-                                        if (kIsWeb) {
-                                          context.read<FileSaverCubit>().downloadFile(
-                                              (context.read<ImageToPdfCubit>().state
-                                                      as ImageToPdfConverted)
-                                                  .pdf,
-                                              '${getDateTimeNow()}.pdf',
-                                              'application/pdf');
-                                        } else {
-                                          context.read<FileSaverCubit>().saveImageToGallery(
-                                              (context.read<ImageToPdfCubit>().state
-                                                      as ImageToPdfConverted)
-                                                  .pdf,
-                                              '${getDateTimeNow()}.pdf');
-                                        }
-                                      },
-                                      child: const Text("Save PDF"),
-                                    );
-                                  }
-                                  if (state is FileSaverSaving) {
-                                    return const Center(child: CircularProgressIndicator());
-                                  } else {
-                                    return const Text("Unknown Error Saving PDF");
-                                  }
-                                },
-                              );
-                            } else {
-                              return const Text("Error Converting PDF");
-                            }
-                          }, listener: (context, state) {
-                            if (state is ImageToPdfError) {
-                              showSnackBar(
-                                  context: context,
-                                  message: "Error Converting PDF: ${state.message}",
-                                  color: Colors.red);
-                            } else if (state is ImageToPdfConverted) {
-                              showSnackBar(
-                                  context: context,
-                                  message: "PDF Successfully Converted!",
-                                  color: Colors.green);
-                            }
-                          }),
-                        )
-                      ],
-                    ),
-)
+                            }, listener: (context, state) {
+                              if (state is ImageToPdfError) {
+                                showSnackBar(
+                                    context: context,
+                                    message: "Error Converting PDF: ${state.message}",
+                                    color: Colors.red);
+                              } else if (state is ImageToPdfConverted) {
+                                showSnackBar(
+                                    context: context,
+                                    message: "PDF Successfully Converted!",
+                                    color: Colors.green);
+                              }
+                            }),
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 );
               } else {

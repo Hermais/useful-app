@@ -44,5 +44,9 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
     }
   }
 
+  void reset(){
+    emit(ImageToPdfInitial());
+  }
+
 
 }

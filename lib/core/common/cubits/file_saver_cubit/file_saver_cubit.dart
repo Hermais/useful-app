@@ -6,6 +6,8 @@ import 'package:meta/meta.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:useful_app/core/utils/print_if_debugging.dart';
 
+import '../../../utils/common_utils.dart';
+
 part 'file_saver_state.dart';
 
 class FileSaverCubit extends Cubit<FileSaverState> {
@@ -32,13 +34,29 @@ class FileSaverCubit extends Cubit<FileSaverState> {
 
 
   void downloadFile(Uint8List bytes, String fileName, String mimeType) {
+    emit(FileSaverSaving());
     final blob = html.Blob([bytes], mimeType);
     final url = html.Url.createObjectUrlFromBlob(blob);
     html.AnchorElement(href: url)
       ..setAttribute("download", fileName)
       ..click();
     html.Url.revokeObjectUrl(url);
+    emit(FileSaverSaved(fileName));
   }
+
+  void saveAccordingToPlatform({required Uint8List bytes,required String fileName, String? mimeType})  {
+    if(isPlatformWeb() || mimeType == null){
+      downloadFile( bytes,  fileName,  mimeType!);
+    }else{
+      saveImageToGallery(bytes, fileName);
+    }
+  }
+
+  void reset(){
+    emit(FileSaverInitial());
+  }
+
+
 
 
 }
