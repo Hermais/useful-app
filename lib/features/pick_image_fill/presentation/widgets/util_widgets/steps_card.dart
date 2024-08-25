@@ -35,20 +35,30 @@ class StepsCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              backButton ?? const SizedBox(),
-              Text(
-                text ?? "Placeholder Text",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                flex: 1,
+                child: backButton ?? const SizedBox(),
               ),
-              const SizedBox(),
+              Expanded(
+                flex: 7,
+                child: Text(
+                  text ?? "Placeholder Text",
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
           const Divider(color: Colors.grey, thickness: 1),
-          ClipRect(child: AnimatedSize(duration: const Duration(milliseconds: 500),child: child ?? const SizedBox())),
+          ClipRect(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 500),
+              child: child ?? const SizedBox(),
+            ),
+          ),
         ],
       ),
     );
