@@ -36,6 +36,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
   final TextEditingController _widthController = TextEditingController(text: "2480");
   final TextEditingController _rowsController = TextEditingController(text: "3");
   final TextEditingController _columnsController = TextEditingController(text: "3");
+  final TextEditingController _marginController = TextEditingController(text: "5");
 
   @override
   Widget build(BuildContext context) {
@@ -275,6 +276,13 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                     decoration: const InputDecoration(labelText: "X-axis count"),
                   ),
                 ),
+                Expanded(
+                  child: AdjustedTextFormField(
+                    controller: _marginController,
+                    validator: defaultFormValidator,
+                    decoration: const InputDecoration(labelText: "Margin"),
+                  ),
+                ),
                 // next button
                 Expanded(
                   child: AdjustedElevatedButton(
@@ -290,14 +298,15 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                         // pop a snack bar
                         if (context.read<ImagePickerCubit>().state is ImagePickerLoaded) {
                           context.read<ImageProcessorCubit>().processXFileImageToUInt8(
-                              xFileImage: (context.read<ImagePickerCubit>().state
-                                      as ImagePickerLoaded)
-                                  .xFileImage,
-                              canvasWidth: int.parse(_widthController.text),
-                              canvasHeight: int.parse(_heightController.text),
-                              rowsImage: int.parse(_rowsController.text),
-                              columnsImage: int.parse(_columnsController.text),
-                              margin: 3);
+                                xFileImage: (context.read<ImagePickerCubit>().state
+                                        as ImagePickerLoaded)
+                                    .xFileImage,
+                                canvasWidth: int.parse(_widthController.text),
+                                canvasHeight: int.parse(_heightController.text),
+                                rowsImage: int.parse(_rowsController.text),
+                                columnsImage: int.parse(_columnsController.text),
+                                margin: int.parse(_marginController.text),
+                              );
                         }
                       }
                     },
