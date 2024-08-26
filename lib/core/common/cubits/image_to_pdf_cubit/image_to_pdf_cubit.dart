@@ -1,25 +1,27 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../../utils/common_utils.dart';
 import '../../../utils/print_if_debugging.dart';
 
 part 'image_to_pdf_state.dart';
+
 class ImageToPdfCubit extends Cubit<ImageToPdfState> {
   ImageToPdfCubit() : super(ImageToPdfInitial());
 
-  Future<Uint8List> convertImageToPDF(Uint8List data, String fileName) async {
+  Future<Uint8List> convertImageToPDF({
+    required Uint8List data,
+    required String fileName,
+    required double height,
+    required double width,
+  }) async {
     try {
       emit(ImageToPdfConverting());
 
       Uint8List bytes;
 
-      if (isPlatformWeb()) {
-        bytes = await _convertImageToPdfWithIsolateSupport({},imageData: data);
-      } else {
-        bytes = await compute(_convertImageToPdfWithIsolateSupport, {'data': data});
-      }
+      bytes = await compute(_convertImageToPdfWithIsolateSupport, {'data': data, 'width': width, 'height': height});
 
       emit(ImageToPdfConverted(bytes));
       return bytes;
@@ -32,47 +34,28 @@ class ImageToPdfCubit extends Cubit<ImageToPdfState> {
   void reset() {
     emit(ImageToPdfInitial());
   }
-
-  // Future<Uint8List> _convertImageToPdfDirectly(Uint8List data) async {
-  //   final pdf = pw.Document();
-  //
-  //   pdf.addPage(
-  //     pw.Page(
-  //       build: (pw.Context context) {
-  //         return pw.FullPage(
-  //           ignoreMargins: true,
-  //           child: pw.Image(
-  //             pw.MemoryImage(data),
-  //             fit: pw.BoxFit.cover,
-  //           ),
-  //         );
-  //       },
-  //     ),
-  //   );
-  //
-  //   return pdf.save();
-  // }
 }
 
 // Function that will be run in an isolate
-Future<Uint8List> _convertImageToPdfWithIsolateSupport(Map<String, dynamic> params, {Uint8List? imageData}) async {
-  Uint8List data;
-  if(imageData != null) {
-    // no isolate mode
-    data = imageData;
-  }else{
-    data = params['data'] as Uint8List;
-  }
+Future<Uint8List> _convertImageToPdfWithIsolateSupport(
+  Map<String, dynamic> params,
+) async {
+  final data = params['data'] as Uint8List;
+  final width = params['width'] as double;
+  final height = params['height'] as double;
+
   final pdf = pw.Document();
 
+  // Create a page with the specified width and height
   pdf.addPage(
     pw.Page(
+      pageFormat: PdfPageFormat(width, height),
       build: (pw.Context context) {
         return pw.FullPage(
           ignoreMargins: true,
           child: pw.Image(
             pw.MemoryImage(data),
-            fit: pw.BoxFit.cover,
+            fit: pw.BoxFit.fill, // Ensure the image fits exactly
           ),
         );
       },
@@ -81,5 +64,3 @@ Future<Uint8List> _convertImageToPdfWithIsolateSupport(Map<String, dynamic> para
 
   return pdf.save();
 }
-
-

@@ -203,28 +203,14 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                   Expanded(
                     child: AdjustedTextFormField(
                       controller: _heightController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter height';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Please enter a valid number';
-                        }
-                        return null;
-                      },
+                      validator: defaultFormValidator,
                       decoration: const InputDecoration(labelText: "Height"),
                     ),
                   ),
                   Expanded(
                     child: AdjustedTextFormField(
                       controller: _widthController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter width';
-                        } else if (int.tryParse(value) == null) {
-                          return 'Please enter a valid number';
-                        }
-                        return null;
-                      },
+                      validator: defaultFormValidator,
                       decoration: const InputDecoration(labelText: "Width"),
                     ),
                   ),
@@ -278,28 +264,14 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                 Expanded(
                   child: AdjustedTextFormField(
                     controller: _rowsController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a number of images';
-                      } else if (int.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
+                    validator: defaultFormValidator,
                     decoration: const InputDecoration(labelText: "Y-axis count"),
                   ),
                 ),
                 Expanded(
                   child: AdjustedTextFormField(
                     controller: _columnsController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a number of images';
-                      } else if (int.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
+                    validator: defaultFormValidator,
                     decoration: const InputDecoration(labelText: "X-axis count"),
                   ),
                 ),
@@ -307,14 +279,14 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                 Expanded(
                   child: AdjustedElevatedButton(
                     onPressed: () async {
-                      setState(() {
-                        _showStep3 = false;
-                        _showStep4 = true;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Processing Image")));
                       // validate form first
                       if (_imageCountFormKey.currentState!.validate()) {
+                        setState(() {
+                          _showStep3 = false;
+                          _showStep4 = true;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Processing Image")));
                         // pop a snack bar
                         if (context.read<ImagePickerCubit>().state is ImagePickerLoaded) {
                           context.read<ImageProcessorCubit>().processXFileImageToUInt8(
@@ -462,10 +434,13 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                 return AdjustedElevatedButton(
                                   onPressed: () {
                                     context.read<ImageToPdfCubit>().convertImageToPDF(
-                                        (context.read<ImageProcessorCubit>().state
-                                                as ImageProcessorPainted)
-                                            .image,
-                                        '${getDateTimeNow()}.pdf');
+                                          data: (context.read<ImageProcessorCubit>().state
+                                                  as ImageProcessorPainted)
+                                              .image,
+                                          fileName: '${getDateTimeNow()}.pdf',
+                                          height: double.parse(_heightController.text),
+                                          width: double.parse(_widthController.text),
+                                        );
                                   },
                                   child: const Text("Convert To PDF"),
                                 );
@@ -567,5 +542,14 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
 
   Widget buildSpacer(int height) {
     return SizedBox(height: height.toDouble());
+  }
+
+  String? defaultFormValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter width';
+    } else if (int.tryParse(value) == null) {
+      return 'Please enter a valid number';
+    }
+    return null;
   }
 }
