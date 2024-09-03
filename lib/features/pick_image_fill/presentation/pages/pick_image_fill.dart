@@ -32,11 +32,11 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
   final _imageCountFormKey = GlobalKey<FormState>();
 
   // the four text fields controllers
-  final TextEditingController _heightController = TextEditingController(text: "3508");
-  final TextEditingController _widthController = TextEditingController(text: "2480");
-  final TextEditingController _rowsController = TextEditingController(text: "3");
-  final TextEditingController _columnsController = TextEditingController(text: "3");
-  final TextEditingController _marginController = TextEditingController(text: "5");
+  final  _heightController = TextEditingController(text: "3508");
+  final  _widthController = TextEditingController(text: "2480");
+  final  _rowsController = TextEditingController(text: "3");
+  final  _columnsController = TextEditingController(text: "3");
+  final  _marginController = TextEditingController(text: "5");
 
   @override
   Widget build(BuildContext context) {
