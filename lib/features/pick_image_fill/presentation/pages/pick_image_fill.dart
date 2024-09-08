@@ -141,6 +141,7 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                       "Image Selected, press next: ",
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
+                    SizedBox(height: 12,),
                     if (kIsWeb)
                       FormattedImage(
                         image: Image.network((state).xFileImage.path),
@@ -409,20 +410,16 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                     state is FileSaverSaved) {
                                   return AdjustedElevatedButton(
                                     onPressed: () {
-                                      if (kIsWeb) {
-                                        context.read<FileSaverCubit>().downloadFile(
-                                            (context.read<ImageProcessorCubit>().state
+
+                                        context.read<FileSaverCubit>().saveAccordingToPlatform(
+                                            bytes :(context.read<ImageProcessorCubit>().state
                                                     as ImageProcessorPainted)
                                                 .image,
-                                            '${getDateTimeNow()}.png',
-                                            'image/png');
-                                      } else {
-                                        context.read<FileSaverCubit>().saveImageToGallery(
-                                            (context.read<ImageProcessorCubit>().state
-                                                    as ImageProcessorPainted)
-                                                .image,
-                                            '${getDateTimeNow()}.jpg');
-                                      }
+                                            fileName: '${getDateTimeNow()}.png',
+                                           mimeType:  'image/png');
+
+
+
                                     },
                                     child: const Text("Save Image"),
                                   );
@@ -463,22 +460,13 @@ class _PickImageAndFillInState extends State<PickImageAndFillIn> {
                                         state is FileSaverSaved) {
                                       return AdjustedElevatedButton(
                                         onPressed: () {
-                                          if (kIsWeb) {
-                                            context.read<FileSaverCubit>().downloadFile(
-                                                (context.read<ImageToPdfCubit>().state
+                                            context.read<FileSaverCubit>().saveAccordingToPlatform(
+                                                bytes: (context.read<ImageToPdfCubit>().state
                                                         as ImageToPdfConverted)
                                                     .pdf,
-                                                '${getDateTimeNow()}.pdf',
-                                                'application/pdf');
-                                          } else {
-                                            context
-                                                .read<FileSaverCubit>()
-                                                .saveImageToGallery(
-                                                    (context.read<ImageToPdfCubit>().state
-                                                            as ImageToPdfConverted)
-                                                        .pdf,
-                                                    '${getDateTimeNow()}.pdf');
-                                          }
+                                                fileName: '${getDateTimeNow()}.pdf',
+                                                mimeType: 'application/pdf');
+
                                         },
                                         child: const Text("Save PDF"),
                                       );

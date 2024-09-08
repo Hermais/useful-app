@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
@@ -13,7 +14,7 @@ part 'file_saver_state.dart';
 class FileSaverCubit extends Cubit<FileSaverState> {
   FileSaverCubit() : super(FileSaverInitial());
 
-  Future<void> saveImageToGallery(Uint8List imageData, String fileName) async {
+  Future<void> _saveFileInApplicationDocumentsDirectory(Uint8List imageData, String fileName) async {
     try {
       emit(FileSaverSaving());
       final directory = await getApplicationDocumentsDirectory();
@@ -31,9 +32,27 @@ class FileSaverCubit extends Cubit<FileSaverState> {
     }
   }
 
+  Future<void> _saveFileInDownloads(Uint8List imageData, String fileName) async {
+    try {
+      emit(FileSaverSaving());
+      final directory = await getDownloadsDirectory();
+      final path = directory!.path;
+
+      final filePath = '$path/$fileName';
+
+      final file = File(filePath);
+      await file.writeAsBytes(imageData);
+
+      emit(FileSaverSaved(filePath));
+
+    } catch (e) {
+      emit(FileSaverError(e.toString()));
+    }
+  }
 
 
-  void downloadFile(Uint8List bytes, String fileName, String mimeType) {
+
+  void _downloadFile(Uint8List bytes, String fileName, String mimeType) {
     emit(FileSaverSaving());
     final blob = html.Blob([bytes], mimeType);
     final url = html.Url.createObjectUrlFromBlob(blob);
@@ -46,9 +65,9 @@ class FileSaverCubit extends Cubit<FileSaverState> {
 
   void saveAccordingToPlatform({required Uint8List bytes,required String fileName, String? mimeType})  {
     if(isPlatformWeb() || mimeType == null){
-      downloadFile( bytes,  fileName,  mimeType!);
+      _downloadFile( bytes,  fileName,  mimeType!);
     }else{
-      saveImageToGallery(bytes, fileName);
+      _saveFileInDownloads(bytes, fileName);
     }
   }
 
